@@ -5,184 +5,183 @@ using namespace std;
 
 template <typename T>
 class DoubleLinkedList {
-    private:
-        template <typename U>
-        class ListNode {
-            public:
-                U data;
-                ListNode* prev;
-                ListNode* next;
-                
-                ListNode(U data) : data(data), prev(nullptr), next(nullptr) {}
-        };
+private:
+    struct ListNode {
+        T data;
+        ListNode* prev;
+        ListNode* next;
+        
+        ListNode(T data) : data(data), prev(nullptr), next(nullptr) {}
+    };
 
-        ListNode<T>* head;
-        ListNode<T>* tail;
+    ListNode* head;
+    ListNode* tail;
+    
+public:
+    DoubleLinkedList() : head(nullptr), tail(head) {}
+    
+    void insertHead(T data) {
+        if (empty()) {
+            head = new ListNode(data);
+            tail = head;
+        } else {
+            ListNode* newNode = new ListNode(data);
+            newNode->next = head;
+            head->prev = newNode;
+            head = newNode;
+        }
+    }
+    
+    void insertTail(T data) {
+        if (empty()) {
+            head = new ListNode(data);
+            tail = head;
+        } else {
+            ListNode* newNode = new ListNode(data);
+            newNode->prev = tail;
+            tail->next = newNode;
+            tail = newNode;
+        }
+    }
+    
+    void insertAt(int index, T data) {
+        if (index == 0) {
+            insertHead(data);
+            return;
+        }
+        if (index < 0) {
+            return;
+        }
         
-    public:
-        DoubleLinkedList() : head(nullptr), tail(head) {}
+        int idx = 0;
+        ListNode* curr = head;
         
-        void insertHead(T data) {
-            if (empty()) {
-                head = new ListNode(data);
-                tail = head;
+        while (curr && idx != index) { // traverse list
+            idx++;
+            curr = curr->next;
+        }
+        if (curr) { // if curr isn't null, then we're at the index
+            if (!curr->next) {  // we're at the tail
+                insertTail(data);
             } else {
-                ListNode<T>* newNode = new ListNode(data);
-                newNode->next = head;
-                head->prev = newNode;
-                head = newNode;
+                ListNode* newNode = new ListNode(data);
+                
+                newNode->prev = curr->prev;
+                newNode->next = curr;
+                curr->prev->next = newNode;
+                curr->prev = newNode;
             }
         }
+    }
+    
+    void removeHead() {
+        ListNode* toDelete = head;
+        head = head->next;
+        head->prev = nullptr;
+        delete toDelete;
+    }
+    
+    void removeTail() {
+        ListNode* toDelete = tail;
+        tail = tail->prev;
+        tail->next = nullptr;
+        delete toDelete;
+    }
+    
+    void removeAt(int index) {
+        if (empty()) return;
+        if (index == 0) {   // removing the head
+            removeHead();
+            return;
+        } else if (index < 0) return;
         
-        void insertTail(T data) {
-            if (empty()) {
-                head = new ListNode(data);
-                tail = head;
+        ListNode* curr = head;
+        int idx = 0;
+        while (curr && idx != index) {  // traverse linked list
+            curr = curr->next;
+            idx++;
+        }
+        
+        if (curr) {
+            if (!curr->next) {
+                removeTail();
             } else {
-                ListNode<T>* newNode = new ListNode(data);
-                newNode->prev = tail;
-                tail->next = newNode;
-                tail = newNode;
+                ListNode* toDelete = curr;
+                curr->prev->next = toDelete->next;
+                curr->next->prev = toDelete->prev;
+                delete toDelete;
             }
         }
+    }
+    
+    bool updateAt(int index, T data) {
+        if (index < 0) return false;
         
-        void insertAt(int index, T data) {
-            if (index == 0) {
-                insertHead(data);
-                return;
-            }
-            if (index < 0) {
-                return;
-            }
-            
-            int idx = 0;
-            ListNode<T>* curr = head;
-            
-            while (curr && idx != index) { // traverse list
-                idx++;
-                curr = curr->next;
-            }
-            if (curr) { // if curr isn't null, then we're at the index
-                if (!curr->next) {  // we're at the tail
-                    insertTail(data);
-                } else {
-                    ListNode<T>* newNode = new ListNode(data);
-                    
-                    newNode->prev = curr->prev;
-                    newNode->next = curr;
-                    curr->prev->next = newNode;
-                    curr->prev = newNode;
-                }
-            }
+        int idx = 0;
+        ListNode* curr = head;
+        while (curr && idx != index) {
+            curr = curr->next;
+            idx++;
+        }
+        if (curr) curr->data = data;
+        return curr != nullptr;
+    }
+    
+    T front() {
+        return head->data;
+    }
+    
+    T back() {
+        return tail->data;
+    }
+    
+    T get(int index) {
+        if (empty()) throw std::out_of_range("List is empty");
+        if (index < 0) return head->data;
+        
+        int idx = 0;
+        ListNode* curr = head;
+        while (curr && idx != index) {
+            curr = curr->next;
+            idx++;
         }
         
-        void removeHead() {
-            ListNode<T>* toDelete = head;
-            head = head->next;
-            head->prev = nullptr;
-            delete toDelete;
+        if (curr) return curr->data;
+        return tail->data;
+    }
+    
+    bool empty() {
+        return head == nullptr;
+    }
+    
+    vector<T> getList() {
+        vector<T> list_arr = {};
+        ListNode* temp = head;
+        while (temp) {
+            list_arr.push_back(temp->data);
+            temp = temp->next;
         }
-        
-        void removeTail() {
-            ListNode<T>* toDelete = tail;
-            tail = tail->prev;
-            tail->next = nullptr;
-            delete toDelete;
+        return list_arr;
+    }
+    
+    vector<T> getReversedList() {
+        vector<T> list_arr = {};
+        ListNode* temp = tail;
+        while (temp) {
+            list_arr.push_back(temp->data);
+            temp = temp->prev;
         }
-        
-        void removeAt(int index) {
-            if (index == 0) {   // removing the head
-                removeHead();
-                return;
-            } else if (index < 0) return;
-            
-            ListNode<T>* curr = head;
-            int idx = 0;
-            while (curr && idx != index) {  // traverse linked list
-                curr = curr->next;
-                idx++;
-            }
-            
-            if (curr) {
-                if (!curr->next) {
-                    removeTail();
-                } else {
-                    ListNode<T>* toDelete = curr;
-                    curr->prev->next = toDelete->next;
-                    curr->next->prev = toDelete->prev;
-                    delete toDelete;
-                }
-            }
+        return list_arr;
+    }
+    
+    ~DoubleLinkedList() {
+        ListNode* temp = head;
+        while (temp) {
+            ListNode* next = temp->next;
+            delete temp;
+            temp = next;
         }
-        
-        bool updateAt(int index, T data) {
-            if (index < 0) return false;
-            
-            int idx = 0;
-            ListNode<T>* curr = head;
-            while (curr && idx != index) {
-                curr = curr->next;
-                idx++;
-            }
-            if (curr) curr->data = data;
-            return curr != nullptr;
-        }
-        
-        T front() {
-            return head->data;
-        }
-        
-        T back() {
-            return tail->data;
-        }
-        
-        T get(int index) {
-            // need handling for case of index < 0, or if empty list
-            if (index < 0) return head->data;
-            
-            int idx = 0;
-            ListNode<T>* curr = head;
-            while (curr && idx != index) {
-                curr = curr->next;
-                idx++;
-            }
-            
-            if (curr) return curr->data;
-            return tail->data;
-        }
-        
-        bool empty() {
-            return head == nullptr;
-        }
-        
-        vector<T> getList() {
-            vector<T> list_arr = {};
-            ListNode<T>* temp = head;
-            while (temp) {
-                list_arr.push_back(temp->data);
-                temp = temp->next;
-            }
-            return list_arr;
-        }
-        
-        vector<T> getReversedList() {
-            vector<T> list_arr = {};
-            ListNode<T>* temp = tail;
-            while (temp) {
-                list_arr.push_back(temp->data);
-                temp = temp->prev;
-            }
-            return list_arr;
-        }
-        
-        ~DoubleLinkedList() {
-            ListNode<T>* temp = head;
-            while (temp) {
-                ListNode<T>* next = temp->next;
-                delete temp;
-                temp = next;
-            }
-        }
+    }
 };
 
 

@@ -7,8 +7,7 @@
 
 class BrowsingHistory {
 private:
-    class UrlNode {
-    public:
+    struct UrlNode {
         std::string url;
         UrlNode* prev;
         UrlNode* next;

@@ -3,116 +3,114 @@
 
 template <typename T>
 class LinkedList {
-    private:
-        template <typename U>
-        class ListNode {
-            public:
-                U data;
-                ListNode* next;
-        
-                ListNode(U data) : data(data), next(nullptr) {}
-        };
+private:
+    struct ListNode {
+        T data;
+        ListNode* next;
+    
+        ListNode(T data) : data(data), next(nullptr) {}
+    };
 
-        ListNode<T>* head;
-        ListNode<T>* tail;
-    public:
-        LinkedList() {
-            this->head = nullptr;
-            this->tail = head;   // make this circular by having tail->next = head
+    ListNode* head;
+    ListNode* tail;
+public:
+    LinkedList() {
+        this->head = nullptr;
+        this->tail = head;   // make this circular by having tail->next = head
+    }
+
+    void add(T data) {
+        ListNode* temp = new ListNode(data);
+        if (head == nullptr) {
+            head = temp;
+            tail = head;
         }
-
-        void add(T data) {
-            ListNode<T>* temp = new ListNode<T>(data);
-            if (head == nullptr) {
-                head = temp;
-                tail = head;
-            }
-            else {
-                tail->next = temp;
-                tail = temp;
-            }
+        else {
+            tail->next = temp;
+            tail = temp;
         }
+    }
 
-        void insert(int index, T data) {
-            ListNode<T>* newNode = new ListNode<T>(data);
-            ListNode<T>* temp = head;
-            if (index == 0 && head == nullptr) { // inserting into empty list
-                head = newNode;
-                tail = head;
+    void insert(int index, T data) {
+        ListNode* newNode = new ListNode(data);
+        ListNode* temp = head;
+        if (index == 0 && head == nullptr) { // inserting into empty list
+            head = newNode;
+            tail = head;
+            return;
+        } else if (index == 0) { // inserting at the beginning
+            newNode->next = head;
+            head = newNode;
+            return;
+        }
+        int idx = 0;
+        while (temp != nullptr) {
+            if (idx == index - 1) {
+                newNode->next = temp->next;
+                temp->next = newNode;
                 return;
-            } else if (index == 0) { // inserting at the beginning
-                newNode->next = head;
-                head = newNode;
-                return;
             }
-            int idx = 0;
-            while (temp != nullptr) {
-                if (idx == index - 1) {
-                    newNode->next = temp->next;
-                    temp->next = newNode;
-                    return;
-                }
-                temp = temp->next;
-                idx++;
-            }
+            temp = temp->next;
+            idx++;
         }
+    }
 
-        T get(int index) {
-            ListNode<T>* temp = head;
-            int idx = 0;
-            while (temp != nullptr) {
-                if (idx == index) return temp->data;
-                temp = temp->next;
-                idx++;
-            }
-            return -1;
+    T get(int index) {
+        ListNode* temp = head;
+        int idx = 0;
+        while (temp != nullptr) {
+            if (idx == index) return temp->data;
+            temp = temp->next;
+            idx++;
         }
+        return -1;
+    }
 
-        bool remove(int index) {
-            if (head == nullptr) return false;
+    bool remove(int index) {
+        if (head == nullptr) return false;
 
-            ListNode<T>* temp = head;
-            if (index == 0) {
-                head = head->next;
-                delete temp;
+        ListNode* temp = head;
+        if (index == 0) {
+            head = head->next;
+            delete temp;
+            return true;
+        }
+        int idx = 0;
+        while (temp != nullptr) {
+            if (idx == index - 1) {
+                ListNode* toDelete = temp->next;
+                temp->next = toDelete->next;
+                delete toDelete;
                 return true;
             }
-            int idx = 0;
-            while (temp != nullptr) {
-                if (idx == index - 1) {
-                    ListNode<T>* toDelete = temp->next;
-                    temp->next = toDelete->next;
-                    delete toDelete;
-                    return true;
-                }
-                temp = temp->next;
-                idx++;
-            }
-            return false;
+            temp = temp->next;
+            idx++;
         }
+        return false;
+    }
 
-        bool empty() {
-            return head == nullptr;
-        }
+    bool empty() {
+        return head == nullptr;
+    }
 
-        std::vector<T> getValues() {
-            std::vector<T> values;
-            ListNode<T>* temp = head;
-            while (temp != nullptr) {
-                values.push_back(temp->data);
-                temp = temp->next;
-            }
-            return values;
+    std::vector<T> getValues() {
+        std::vector<T> values;
+        ListNode* temp = head;
+        while (temp != nullptr) {
+            values.push_back(temp->data);
+            temp = temp->next;
         }
+        return values;
+    }
 
-        ~LinkedList() {
-            ListNode<T>* temp = head;
-            while (temp != nullptr) {
-                ListNode<T>* next = temp->next;
-                delete temp;
-                temp = next;
-            }
+    ~LinkedList() {
+        ListNode* temp = head;
+        while (temp != nullptr) {
+            ListNode* next = temp->next;
+            delete temp;
+            temp = next;
         }
+    }
 };
 
 int main() {
